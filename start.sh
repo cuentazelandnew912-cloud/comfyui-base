@@ -253,6 +253,14 @@ if [ ! -f "$COMFYUI_DIR/models/vae/ae.safetensors" ]; then
     --token "$HF_TOKEN"
 fi
 
+# FLUX Kontext
+if [ ! -f "$COMFYUI_DIR/models/unet/flux1-kontext-dev.safetensors" ]; then
+  hf download black-forest-labs/FLUX.1-Kontext-dev \
+    flux1-kontext-dev.safetensors \
+    --local-dir "$COMFYUI_DIR/models/unet" \
+    --token "$HF_TOKEN"
+fi
+
 echo "✅ Modelos y nodos listos!"
 
 # Start ComfyUI — keep container alive if it crashes so SSH/Jupyter remain accessible
