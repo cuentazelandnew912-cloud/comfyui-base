@@ -203,6 +203,58 @@ fi
 # Warm up pip so ComfyUI-Manager's 5s timeout check doesn't fail on cold start
 python -m pip --version > /dev/null 2>&1
 
+# ── Custom Nodes ──────────────────────────────────────────
+echo "Instalando custom nodes..."
+cd "$COMFYUI_DIR/custom_nodes"
+
+if [ ! -d "comfyui-easy-use" ]; then
+  git clone https://github.com/yolain/comfyui-easy-use
+  pip install -r comfyui-easy-use/requirements.txt 2>&1 | grep -E "^(Successfully|ERROR)" || true
+fi
+
+if [ ! -d "ComfyUI_Comfyroll_CustomNodes" ]; then
+  git clone https://github.com/Suzie1/ComfyUI_Comfyroll_CustomNodes
+fi
+
+if [ ! -d "ComfyUI_IPAdapter_plus" ]; then
+  git clone https://github.com/cubiq/ComfyUI_IPAdapter_plus
+fi
+
+if [ ! -d "comfyui_controlnet_aux" ]; then
+  git clone https://github.com/Fannovel16/comfyui_controlnet_aux
+  pip install -r comfyui_controlnet_aux/requirements.txt 2>&1 | grep -E "^(Successfully|ERROR)" || true
+fi
+
+# ── Modelos FLUX ──────────────────────────────────────────
+echo "Descargando modelos FLUX..."
+mkdir -p "$COMFYUI_DIR/models/unet"
+mkdir -p "$COMFYUI_DIR/models/clip"
+mkdir -p "$COMFYUI_DIR/models/vae"
+mkdir -p "$COMFYUI_DIR/models/ipadapter"
+mkdir -p "$COMFYUI_DIR/models/controlnet"
+
+if [ ! -f "$COMFYUI_DIR/models/unet/flux1-dev.safetensors" ]; then
+  hf download black-forest-labs/FLUX.1-dev \
+    flux1-dev.safetensors \
+    --local-dir "$COMFYUI_DIR/models/unet" \
+    --token "$HF_TOKEN"
+fi
+
+if [ ! -f "$COMFYUI_DIR/models/clip/clip_l.safetensors" ]; then
+  hf download comfyanonymous/flux_text_encoders \
+    clip_l.safetensors t5xxl_fp16.safetensors \
+    --local-dir "$COMFYUI_DIR/models/clip"
+fi
+
+if [ ! -f "$COMFYUI_DIR/models/vae/ae.safetensors" ]; then
+  hf download black-forest-labs/FLUX.1-dev \
+    ae.safetensors \
+    --local-dir "$COMFYUI_DIR/models/vae" \
+    --token "$HF_TOKEN"
+fi
+
+echo "✅ Modelos y nodos listos!"
+
 # Start ComfyUI — keep container alive if it crashes so SSH/Jupyter remain accessible
 cd $COMFYUI_DIR
 FIXED_ARGS="--listen 0.0.0.0 --port 8188 --enable-cors-header"
