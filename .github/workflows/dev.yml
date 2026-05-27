@@ -37,8 +37,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/bake-action@v5
         with:
-          context: .
           push: ${{ inputs.push }}
-          tags: ghcr.io/${{ github.repository }}:dev
+          files: ./docker-bake.hcl
+          set: |
+            *.tags=ghcr.io/${{ github.repository }}:dev
+        env:
+          REGISTRY: ghcr.io/${{ github.repository }}
